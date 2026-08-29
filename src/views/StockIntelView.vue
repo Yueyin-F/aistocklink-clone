@@ -29,7 +29,11 @@ async function loadPrices() {
 async function load() {
   loading.value = true
   try {
-    favorites.value = userStore.favoriteStocks.length ? userStore.favoriteStocks : (await api.getFavorites()) || []
+    favorites.value = userStore.favoriteStocks.length
+      ? userStore.favoriteStocks
+      : userStore.isDemo
+        ? []
+        : (await api.getFavorites()) || []
     const [n, ev] = await Promise.allSettled([
       api.getFavoritesNews({ limit: 10 }),
       api.getMonitorEvents({ limit: 10 }),
@@ -38,7 +42,7 @@ async function load() {
     if (ev.status === 'fulfilled') events.value = ev.value?.events || []
     await loadPrices()
   } catch (e) {
-    if (e?.response?.status === 401) {
+    if (e?.response?.status === 401 && !userStore.isDemo) {
       ElMessage.warning('请先登录')
       router.push({ path: '/login', query: { redirect: '/stock-intel' } })
     }

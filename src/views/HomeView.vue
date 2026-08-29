@@ -231,7 +231,10 @@ async function fetchMyFavoriteStocks() {
   }
   loadingFavorites.value = true
   try {
-    const favs = userStore.favoriteStocks.length ? userStore.favoriteStocks : await api.getFavorites()
+    // 演示账号直接使用本地自选股，避免无意义的服务器请求
+    const favs = userStore.isDemo || userStore.favoriteStocks.length
+      ? userStore.favoriteStocks
+      : await api.getFavorites()
     const codes = favs.map((f) => f.code || f.stock_code).filter(Boolean)
     if (codes.length) {
       const data = await api.getStockQuotesCore(codes.join(','))

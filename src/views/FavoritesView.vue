@@ -28,16 +28,23 @@ async function loadPrices() {
 async function load() {
   loading.value = true
   try {
-    list.value = await api.getFavorites()
-    const [n] = await Promise.allSettled([api.getPushNews()])
-    if (n.status === 'fulfilled') pushNews.value = n.value?.推送新闻 || []
+    // 演示账号：直接使用本地缓存的自选股，跳过服务器校验
+    if (userStore.isDemo) {
+      list.value = userStore.favoriteStocks
+      const [n] = await Promise.allSettled([api.getPushNews()])
+      if (n.status === 'fulfilled') pushNews.value = n.value?.推送新闻 || []
+    } else {
+      list.value = await api.getFavorites()
+      const [n] = await Promise.allSettled([api.getPushNews()])
+      if (n.status === 'fulfilled') pushNews.value = n.value?.推送新闻 || []
+    }
     await loadPrices()
   } catch (e) {
-    if (e?.response?.status === 401) {
+    if (e?.response?.status === 401 && !userStore.isDemo) {
       ElMessage.warning('请先登录')
       router.push({ path: '/login', query: { redirect: '/favorites' } })
     } else {
-      list.value = []
+      list.value = userStore.favoriteStocks.length ? userStore.favoriteStocks : []
     }
   } finally {
     loading.value = false

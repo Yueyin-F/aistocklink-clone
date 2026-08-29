@@ -102,6 +102,19 @@ async function smsLogin() {
 function onTabChange(name) {
   if (name === 'wechat') startWechatScan()
 }
+
+async function demoLogin() {
+  logging.value = true
+  try {
+    await userStore.demoLogin()
+    ElMessage.success('演示账号登录成功（离线体验模式）')
+    router.push(route.query.redirect || '/')
+  } catch (e) {
+    ElMessage.error('登录失败')
+  } finally {
+    logging.value = false
+  }
+}
 </script>
 
 <template>
@@ -113,6 +126,13 @@ function onTabChange(name) {
       </div>
       <el-tabs v-model="tab" @tab-change="onTabChange">
         <el-tab-pane label="短信登录" name="sms">
+          <el-alert
+            type="info"
+            :closable="false"
+            show-icon
+            style="margin-bottom: 12px"
+            title="短信服务为原站后端提供，当前原站未配置短信通道（需阿里云/腾讯云凭证），暂无法收到验证码。"
+          />
           <el-form label-width="80px" style="max-width: 380px">
             <el-form-item label="手机号">
               <el-input v-model="phone" placeholder="11位手机号" maxlength="11" />
@@ -137,11 +157,20 @@ function onTabChange(name) {
               <p class="muted">请使用微信扫描二维码登录</p>
             </div>
             <div v-else class="qr-fallback">
-              <el-empty description="演示模式：微信扫码登录需后端支持" :image-size="100" />
-              <p class="muted">本复现版可通过短信登录体验完整功能</p>
+              <el-empty description="演示模式：微信扫码登录需原站微信开放平台配置" :image-size="100" />
+              <p class="muted">可先使用下方「演示账号登录」体验完整功能</p>
             </div>
           </div>
         </el-tab-pane>
+
+        <!-- 演示账号登录（自研：原站短信/微信服务不可用时的本地离线体验模式） -->
+        <div class="demo-login">
+          <el-divider><span class="muted">或</span></el-divider>
+          <el-button type="success" plain style="width: 100%" @click="demoLogin">
+            🚀 演示账号登录（离线体验完整功能）
+          </el-button>
+          <p class="muted demo-tip">无需手机号/验证码，自选股等数据保存在本地浏览器，适合演示与面试展示</p>
+        </div>
       </el-tabs>
     </div>
   </div>
@@ -200,5 +229,15 @@ function onTabChange(name) {
 
 .qr-fallback {
   text-align: center;
+}
+
+.demo-login {
+  margin-top: 4px;
+}
+
+.demo-tip {
+  text-align: center;
+  font-size: 0.78rem;
+  margin-top: 8px;
 }
 </style>

@@ -14,6 +14,8 @@ export const useUserStore = defineStore('user', {
   getters: {
     currentUser: (s) => s.user,
     isLoggedIn: (s) => s.isAuthenticated,
+    // 演示账号（离线体验模式，不依赖原站短信/微信服务）
+    isDemo: (s) => !!s.user?.isDemo,
   },
   actions: {
     async initAuth() {
@@ -33,7 +35,19 @@ export const useUserStore = defineStore('user', {
       } catch (e) { /* ignore */ }
       if (this.isAuthenticated) await this.syncFavorites()
     },
+    // 演示账号登录：本地离线体验模式（原站短信/微信服务未配置时的替代）
+    async demoLogin() {
+      this.user = { name: '演示用户', id: 'demo', avatar: '', isDemo: true }
+      this.isAuthenticated = true
+      // 恢复本地自选股
+      try {
+        const cached = localStorage.getItem(FAV_KEY)
+        if (cached) this.favoriteStocks = JSON.parse(cached)
+      } catch (e) { /* ignore */ }
+      return this.user
+    },
     async syncFavorites() {
+      if (this.isDemo) return this.favoriteStocks
       try {
         const list = await api.getFavorites()
         this.favoriteStocks = list || []
@@ -45,7 +59,7 @@ export const useUserStore = defineStore('user', {
     async addFavorite(stock) {
       this.favoriteStocks.push(stock)
       localStorage.setItem(FAV_KEY, JSON.stringify(this.favoriteStocks))
-      if (!this.isAuthenticated) return
+      if (!this.isAuthenticated || this.isDemo) return
       try {
         await api.addFavorite(stock)
       } catch (e) {
@@ -55,7 +69,7 @@ export const useUserStore = defineStore('user', {
     async removeFavorite(code) {
       this.favoriteStocks = this.favoriteStocks.filter((s) => s.code !== code && s.stock_code !== code)
       localStorage.setItem(FAV_KEY, JSON.stringify(this.favoriteStocks))
-      if (!this.isAuthenticated) return
+      if (!this.isAuthenticated || this.isDemo) return
       try {
         await api.deleteFavorite({ stock_code: code })
       } catch (e) {
@@ -73,9 +87,11 @@ export const useUserStore = defineStore('user', {
       return data
     },
     async logout() {
-      try {
-        await api.logout()
-      } catch (e) { /* ignore */ }
+      if (!this.isDemo) {
+        try {
+          await api.logout()
+        } catch (e) { /* ignore */ }
+      }
       this.user = null
       this.isAuthenticated = false
       this.favoriteStocks = []
