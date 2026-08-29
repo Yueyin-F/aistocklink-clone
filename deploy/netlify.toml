@@ -1,0 +1,32 @@
+# Netlify 部署配置（放项目根目录）
+# 说明：
+#  - 前端纯静态部署到 Netlify（免费 + 全球 CDN + 自动 HTTPS）
+#  - /api 与 /kronos 通过外部代理规则转发到真实数据源（Netlify 200-rewrite 支持外部代理）
+# 用法：Netlify → Add new site → Import from Git（或拖拽 dist/ 目录）
+
+# 构建命令（提交源码时启用）
+build_command = "npm run build:rollup"
+publish = "dist"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://gupiao-api.yaozhineng.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/kronos/*"
+  to = "https://yingfeng64-kronos-api.hf.space/:splat"
+  status = 200
+  force = true
+
+# SPA history 路由回退
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"

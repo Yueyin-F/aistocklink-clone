@@ -1,0 +1,18 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import ElementPlus from 'element-plus'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
+import App from './App.vue'
+import router from './router'
+import { useThemeStore } from './stores/theme'
+import './styles/main.css'
+
+const app = createApp(App)
+app.use(createPinia())
+app.use(router)
+app.use(ElementPlus, { locale: zhCn })
+// 初始化主题（深色/浅色，本复现项目自研特性）
+useThemeStore().init()
+app.mount('#app')

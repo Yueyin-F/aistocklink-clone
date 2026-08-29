@@ -1,0 +1,39 @@
+# Docker Compose 一键部署（app + Caddy 自动 HTTPS）
+# 用法（推荐走一键脚本 deploy/install-docker.sh）：
+#   1) 把域名 A 记录解析到服务器公网 IP
+#   2) docker compose up -d --build
+#   3) Caddy 自动申请并续期 Let's Encrypt 证书
+#   无域名场景：仅启动 app，直接 http://服务器IP:4173 访问（改 deploy/Caddyfile 配置域名后即可启用 HTTPS）
+services:
+  app:
+    build: .
+    image: aistocklink:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4173
+      # 数据源（默认内置，可按需覆盖）
+      # API_TARGET: https://gupiao-api.yaozhineng.com
+      # KRONOS_TARGET: https://yingfeng64-kronos-api.hf.space
+    expose:
+      - "4173"
+    # 无域名（IP 直连）模式需要映射到宿主机端口
+    ports:
+      - "4173:4173"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,21 @@
+# 依赖与构建产物
+node_modules/
+dist/
+dist-test/
+.npm-cache/
+logs/
+
+# 本地环境
+.env
+.env.local
+
+# 测试与研究产物
+research/chunks/
+research/site_*.js
+research/site_*.css
+research/home*.js
+research/*.pretty.js
+
+# 系统文件
+.DS_Store
+Thumbs.db

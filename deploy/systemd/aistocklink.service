@@ -1,0 +1,27 @@
+# systemd 服务单元（不装 PM2 的极简方案）
+# 用法：
+#   1) 把本项目放到 /opt/aistocklink
+#   2) 复制本文件到 /etc/systemd/system/aistocklink.service
+#   3) systemctl daemon-reload && systemctl enable --now aistocklink
+
+[Unit]
+Description=AI StockLink reproduction service (static + API proxy)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/aistocklink
+ExecStart=/usr/bin/node serve.mjs
+# 或使用 nvm 安装的 node：ExecStart=/root/.nvm/versions/node/v20.x.x/bin/node serve.mjs
+Restart=always
+RestartSec=3
+Environment=NODE_ENV=production
+Environment=PORT=4173
+# 数据源（可选覆盖）
+# Environment=API_TARGET=https://gupiao-api.yaozhineng.com
+# Environment=KRONOS_TARGET=https://yingfeng64-kronos-api.hf.space
+# 安全：只监听本机，由 Nginx/Caddy 转发
+ExecStartPre=/bin/sh -c "test -d /opt/aistocklink/dist || (echo 'dist 不存在，请先 npm run build:rollup' && exit 1)"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,36 @@
+{
+  "name": "aistocklink-clone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "股票资讯AI智能分析 - www.aistocklink.cn 复现版",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:rollup": "node build/build.mjs",
+    "serve": "node serve.mjs 4173",
+    "test:smoke": "node test/smoke.mjs",
+    "test:smoke-all": "node test/smoke-all.mjs",
+    "build:test": "set BUILD_FORMAT=cjs&& node build/build.mjs && node test/smoke-all.mjs"
+  },
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-replace": "^6.0.3",
+    "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
+    "echarts": "^5.5.1",
+    "element-plus": "^2.9.1",
+    "jsdom": "^30.0.1",
+    "localtunnel": "^2.0.2",
+    "pinia": "^2.3.0",
+    "rollup": "^4.63.0",
+    "terser": "^5.51.2",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.0.7"
+  }
+}

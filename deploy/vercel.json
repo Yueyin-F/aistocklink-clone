@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://gupiao-api.yaozhineng.com/api/:path*"
+    },
+    {
+      "source": "/kronos/:path*",
+      "destination": "https://yingfeng64-kronos-api.hf.space/:path*"
+    },
+    {
+      "source": "/((?!assets/|img/|css/|favicon.ico).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    }
+  ]
+}

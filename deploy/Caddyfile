@@ -1,0 +1,17 @@
+# Caddy 配置：自动 HTTPS（Let's Encrypt），零配置证书续期
+# 将 aistock.你的域名.com 替换为实际域名；A 记录先解析到服务器 IP
+
+aistock.你的域名.com {
+	# 前端静态资源（Docker 内 app 容器 4173 端口）
+	reverse_proxy /api/* app:4173
+	reverse_proxy /kronos/* app:4173
+
+	# 其余路径 → SPA 静态资源（由 app 容器直接提供，含 history 路由回退）
+	reverse_proxy app:4173
+
+	encode gzip
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+	}
+}
